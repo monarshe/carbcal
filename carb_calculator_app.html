@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الكارب - جرعة الأنسولين السريع</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f2f9f8',
+                            100: '#dbf0ee',
+                            200: '#b8e1dd',
+                            500: '#2E6F6D',
+                            600: '#255a58',
+                            700: '#1e4847',
+                            dark: '#112229',
+                            darkCard: '#1A2C34',
+                            accent: '#4EECD3'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background-color: #F4F7F6;
+            color: #2D3748;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+        .glow-accent {
+            text-shadow: 0 0 12px rgba(78, 236, 211, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-12 antialiased">
+
+    <!-- Top Header Bar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+            <button onclick="resetApp()" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition" title="إعادة ضبط">
+                <i class="fa-solid fa-arrows-rotate text-sm"></i>
+            </button>
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <span class="text-xs font-bold bg-brand-100 text-brand-700 px-2.5 py-1 rounded-full">حاسبة الكارب 4</span>
+            </div>
+            <button onclick="toggleInfoModal()" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition" title="حول الأداة">
+                <i class="fa-solid fa-circle-info text-sm"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-xl mx-auto px-4 pt-6 w-full space-y-6">
+
+        <!-- Title Header & Intro -->
+        <div class="text-center space-y-3">
+            <div class="inline-flex items-center gap-1.5 bg-teal-50 text-brand-600 px-3 py-1 rounded-full text-xs font-semibold border border-teal-100">
+                <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                حاسبة مساعدة لمرضى السكري النوع الأول
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">حاسبة الكارب</h1>
+            
+            <p class="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
+                احسب جرعة الأنسولين السريع من كمية الكربوهيدرات والسكر الحالي، بالاعتماد على نسبتك ومعاملك الخاصين.
+            </p>
+
+            <div class="inline-flex items-center gap-2 bg-amber-50 text-amber-800 text-xs px-3 py-1.5 rounded-full border border-amber-200/60 font-medium">
+                <span>👩‍⚕️</span>
+                <span>بإشراف أخصائية التغذية العلاجية: <strong>منى الرشيدي</strong></span>
+            </div>
+        </div>
+
+        <!-- Navigation Pills / Tabs -->
+        <div class="flex p-1 bg-gray-200/80 rounded-2xl gap-1 text-sm font-bold shadow-inner">
+            <button id="tab-calc-btn" onclick="switchTab('calculator')" class="flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 bg-white text-brand-700 shadow-sm">
+                <span>🧮</span>
+                <span>الحاسبة</span>
+            </button>
+            <button id="tab-foods-btn" onclick="switchTab('foods')" class="flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 text-gray-600 hover:text-gray-900">
+                <span>🍱</span>
+                <span>مصادر الكربوهيدرات والمطاعم</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: CALCULATOR VIEW -->
+        <div id="calculator-tab" class="space-y-5">
+
+            <!-- Section 1: Personal Settings Card -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 transition-all duration-200">
+                <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <span>⚙️</span> الإعدادات الشخصية
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-0.5">نسبتك ومعاملك يحددهما طبيبك أو أخصائي التغذية</p>
+                    </div>
+                    <button onclick="toggleCardVisibility('settings-body')" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i id="settings-body-icon" class="fa-solid fa-chevron-up text-xs"></i>
+                    </button>
+                </div>
+
+                <div id="settings-body" class="space-y-4">
+                    <!-- Row 1: Ratio & Correction -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">
+                                نسبة الأنسولين للكارب <span class="text-gray-400 font-normal">(جم / وحدة)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="icr-input" placeholder="مثال: 10" min="0.1" step="0.1" oninput="calculateDose()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-gray-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition text-left dir-ltr">
+                                <span class="absolute left-3 top-2.5 text-xs text-gray-400 pointer-events-none">g/u</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">
+                                معامل التصحيح <span class="text-gray-400 font-normal">(mg/dL / وحدة)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="isf-input" placeholder="مثال: 50" min="1" step="1" oninput="calculateDose()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-gray-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition text-left dir-ltr">
+                                <span class="absolute left-3 top-2.5 text-xs text-gray-400 pointer-events-none">mg/dL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Target Sugar -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                            السكر المستهدف <span class="text-gray-400 font-normal">(mg/dL)</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="target-sugar-input" placeholder="مثال: 110" min="50" max="250" step="1" oninput="calculateDose()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-gray-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition text-left dir-ltr">
+                            <span class="absolute left-3 top-2.5 text-xs text-gray-400 pointer-events-none">mg/dL</span>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] text-gray-500 leading-relaxed bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                        📌 هذه القيم مختلفة من شخص لآخر وقد تتغير مع الوقت — راجعها دورياً مع فريقك الطبي.
+                    </p>
+
+                    <!-- Save Checkbox -->
+                    <div class="flex items-center gap-2 pt-1">
+                        <input type="checkbox" id="remember-settings" onchange="toggleRememberSettings()" class="w-4 h-4 text-brand-500 bg-gray-100 border-gray-300 rounded focus:ring-brand-500">
+                        <label for="remember-settings" class="text-xs font-semibold text-gray-700 cursor-pointer">
+                            تذكّر هذه الإعدادات على هذا الجهاز
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Meal & Blood Sugar Data Card -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <span>🍽️</span> بيانات الوجبة والسكر
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-0.5">أضف الكارب يدوياً أو اختر من المرجع بالأسفل</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Current Sugar -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                            السكر الحالي <span class="text-gray-400 font-normal">(mg/dL)</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="current-sugar-input" placeholder="مثال: 180" min="20" max="600" step="1" oninput="calculateDose()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-gray-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition text-left dir-ltr">
+                            <span class="absolute left-3 top-2.5 text-xs text-gray-400 pointer-events-none">mg/dL</span>
+                        </div>
+                    </div>
+
+                    <!-- Manual Additional Carbs -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                            كربوهيدرات إضافية (يدوي) <span class="text-gray-400 font-normal">(جم)</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="manual-carbs-input" value="0" min="0" step="1" oninput="calculateDose()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-gray-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition text-left dir-ltr">
+                            <span class="absolute left-3 top-2.5 text-xs text-gray-400 pointer-events-none">جم</span>
+                        </div>
+                    </div>
+
+                    <!-- Selected Foods Summary Box (if items chosen) -->
+                    <div id="selected-foods-box" class="hidden bg-teal-50/60 rounded-xl p-3 border border-teal-100 text-xs space-y-2">
+                        <div class="flex items-center justify-between font-bold text-brand-700">
+                            <span>العناصر المختارة من المرجع:</span>
+                            <button onclick="clearSelectedFoods()" class="text-red-500 hover:underline text-[11px]">مسح الكُل</button>
+                        </div>
+                        <ul id="selected-foods-list" class="space-y-1 text-gray-700"></ul>
+                    </div>
+
+                    <!-- Total Carbs Summary -->
+                    <div class="bg-gray-100 rounded-xl p-3.5 flex items-center justify-between text-sm">
+                        <span class="font-bold text-gray-700">مجموع الكربوهيدرات الكلي:</span>
+                        <div class="font-extrabold text-brand-700 text-base">
+                            <span id="total-carbs-display">0</span> <span class="text-xs font-normal">جم</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Calculate Action Button -->
+                    <button onclick="calculateDose(true)" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+                        <span>احسب الجرعة</span>
+                        <i class="fa-solid fa-calculator text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section 3: Result Card (Dark Card) -->
+            <div class="bg-brand-dark text-white rounded-2xl p-6 shadow-xl border border-gray-800 space-y-5 relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-brand-accent/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="text-center space-y-1">
+                    <div class="inline-flex items-center gap-2 text-xs font-semibold text-brand-accent bg-brand-darkCard px-3 py-1 rounded-full border border-gray-800">
+                        <span class="w-2 h-2 rounded-full bg-brand-accent animate-ping"></span>
+                        إجمالي جرعة الأنسولين السريع
+                    </div>
+                    
+                    <div class="pt-2">
+                        <div class="text-5xl sm:text-6xl font-black text-brand-accent tracking-tight glow-accent inline-block" id="total-dose-display">
+                            0.0
+                        </div>
+                        <span class="text-lg font-bold text-gray-300 mr-2">وحدة</span>
+                    </div>
+                </div>
+
+                <!-- Breakdown Cards -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div class="bg-brand-darkCard p-3.5 rounded-xl border border-gray-800 text-center">
+                        <span class="block text-[11px] text-gray-400 mb-1">جرعة الوجبة</span>
+                        <div class="text-lg font-bold text-white">
+                            <span id="meal-dose-display">0.0</span> <span class="text-xs text-gray-400 font-normal">وحدة</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-brand-darkCard p-3.5 rounded-xl border border-gray-800 text-center">
+                        <span class="block text-[11px] text-gray-400 mb-1">جرعة التصحيح</span>
+                        <div class="text-lg font-bold text-white">
+                            <span id="correction-dose-display">0.0</span> <span class="text-xs text-gray-400 font-normal">وحدة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-[11px] text-gray-400 pt-1" id="dose-status-note">
+                    أدخل بياناتك ثم اضغط "احسب الجرعة"
+                </div>
+            </div>
+
+            <!-- Section 4: Medical Disclaimer -->
+            <div class="bg-rose-50/70 border border-rose-200/80 rounded-2xl p-4 text-xs text-rose-900 space-y-2 leading-relaxed">
+                <div class="flex items-center gap-2 font-bold text-rose-800 text-sm">
+                    <span class="text-base">⚕️</span>
+                    <span>تنبيه مهم:</span>
+                </div>
+                <p>
+                    هذه الأداة حاسبة مساعدة فقط ولا تغني عن استشارة الطبيب المختص أو أخصائي التغذية العلاجية. نسبة الأنسولين إلى الكربوهيدرات ومعامل التصحيح الخاصين بك يجب أن يُحددا وتتم متابعتهما من قبل فريقك الطبي المعالج. قيم أطباق المطاعم تقديرية وتختلف حسب الحجم والمطعم الفعلي. تحقق دائماً من الجرعة قبل الحقن.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: FOOD DIRECTORY & RESTAURANTS -->
+        <div id="foods-tab" class="hidden space-y-4">
+            
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <span>📖</span> دليل الكربوهيدرات والأطعمة
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">ابحث عن وجبتك وأضف القيمة مباشرة لحساب الجرعة</p>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <input type="text" id="food-search-input" onkeyup="filterFoods()" placeholder="ابحث عن طعام أو مطعم (مثال: أرز، شاورما، بيتزا، موز...)" class="w-full bg-gray-50 border border-gray-200 rounded-xl pr-10 pl-4 py-2.5 text-sm text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-3 text-gray-400 text-sm"></i>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar" id="category-pills">
+                    <button onclick="filterCategory('all')" class="cat-pill active px-3 py-1.5 rounded-lg font-bold bg-brand-500 text-white whitespace-nowrap">الكل</button>
+                    <button onclick="filterCategory('popular')" class="cat-pill px-3 py-1.5 rounded-lg font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">الأكثر شيووعاً</button>
+                    <button onclick="filterCategory('bread')" class="cat-pill px-3 py-1.5 rounded-lg font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">المخبوزات والنشويات</button>
+                    <button onclick="filterCategory('fruits')" class="cat-pill px-3 py-1.5 rounded-lg font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">الفواكه والحلويات</button>
+                    <button onclick="filterCategory('fastfood')" class="cat-pill px-3 py-1.5 rounded-lg font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">الوجبات السريعة</button>
+                </div>
+
+                <!-- Food List Grid -->
+                <div id="food-list-container" class="space-y-2 pt-2 max-h-[500px] overflow-y-auto pr-1">
+                    <!-- Javascript populates foods here -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-gray-800">معلومات التطبيق</h3>
+                <button onclick="toggleInfoModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="text-xs text-gray-600 space-y-2 leading-relaxed">
+                <p>تطبيق حاسبة الكارب المصمم لمساعدة أبطال السكري من النوع الأول على حساب جرعات الأنسولين السريع بدقة وسهولة.</p>
+                <p><strong>طريقة الحساب:</strong></p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>جرعة الوجبة = الكربوهيدرات ÷ معامل الكارب</li>
+                    <li>جرعة التصحيح = (السكر الحالي - السكر المستهدف) ÷ معامل التصحيح</li>
+                </ul>
+            </div>
+            <button onclick="toggleInfoModal()" class="w-full py-2 bg-brand-500 text-white rounded-xl text-xs font-bold">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+        <i class="fa-solid fa-check text-brand-accent"></i>
+        <span id="toast-message">تمت العملية بنجاح</span>
+    </div>
+
+    <script>
+        // Data Store for Foods
+        const foodDatabase = [
+            { id: 1, name: 'أرز أبيض مطبوخ (كوب)', carbs: 45, category: 'bread', popular: true, desc: 'حوالي 150 جرام' },
+            { id: 2, name: 'خبز مفرود عربي (رغيف متوسط)', carbs: 30, category: 'bread', popular: true, desc: 'رغيف واحد متوسط' },
+            { id: 3, name: 'خبز صامولي / صمّون (حبة واحدة)', carbs: 25, category: 'bread', popular: true, desc: 'حبة واحدة' },
+            { id: 4, name: 'موزة متوسطة الحجم', carbs: 20, category: 'fruits', popular: true, desc: 'حبة واحدة متوسطة' },
+            { id: 5, name: 'تفاحة متوسطة', carbs: 15, category: 'fruits', popular: true, desc: 'حبة واحدة' },
+            { id: 6, name: 'تمر (3 حبات)', carbs: 20, category: 'fruits', popular: true, desc: '3 حبات متوسطة' },
+            { id: 7, name: 'ساندويش شاورما دجاج صغيرة', carbs: 30, category: 'fastfood', popular: true, desc: 'خبز عربي صغير' },
+            { id: 8, name: 'شريحة بيتزا متوسطة', carbs: 30, category: 'fastfood', popular: true, desc: 'عجينة متوسطة' },
+            { id: 9, name: 'بطاطس مقلية (حجم متوسط)', carbs: 40, category: 'fastfood', popular: true, desc: 'وجبة متوسطة' },
+            { id: 10, name: 'برجر دجاج أو لحم (مع الخبز)', carbs: 35, category: 'fastfood', popular: false, desc: 'برجر عادي' },
+            { id: 11, name: 'معكرونة مطبوخة (كوب)', carbs: 40, category: 'bread', popular: false, desc: 'كوب معكرونة مسلوقة' },
+            { id: 12, name: 'بروستد دجاج (مع بطاطس وخبز)', carbs: 65, category: 'fastfood', popular: true, desc: 'وجبة كاملة' },
+            { id: 13, name: 'عصير برتقال طازج (كوب 250 مل)', carbs: 26, category: 'fruits', popular: false, desc: 'بدون إضافات سكر' },
+            { id: 14, name: 'كنافة (قطعة متوسطة)', carbs: 45, category: 'fruits', popular: false, desc: '100 جرام تقريباً' },
+            { id: 15, name: 'شوكولاتة بالحليب (40g)', carbs: 24, category: 'fruits', popular: false, desc: 'شريط صغير' }
+        ];
+
+        // State variables
+        let selectedFoods = [];
+        let activeCategory = 'all';
+
+        // DOM elements
+        const icrInput = document.getElementById('icr-input');
+        const isfInput = document.getElementById('isf-input');
+        const targetSugarInput = document.getElementById('target-sugar-input');
+        const currentSugarInput = document.getElementById('current-sugar-input');
+        const manualCarbsInput = document.getElementById('manual-carbs-input');
+        const rememberCheckbox = document.getElementById('remember-settings');
+
+        const totalCarbsDisplay = document.getElementById('total-carbs-display');
+        const totalDoseDisplay = document.getElementById('total-dose-display');
+        const mealDoseDisplay = document.getElementById('meal-dose-display');
+        const correctionDoseDisplay = document.getElementById('correction-dose-display');
+        const doseStatusNote = document.getElementById('dose-status-note');
+
+        // On Load Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedSettings();
+            renderFoodList();
+            calculateDose();
+        });
+
+        // Toggle card collapse
+        function toggleCardVisibility(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.className = 'fa-solid fa-chevron-up text-xs';
+            } else {
+                el.classList.add('hidden');
+                icon.className = 'fa-solid fa-chevron-down text-xs';
+            }
+        }
+
+        // Switch Tabs
+        function switchTab(tab) {
+            const calcTab = document.getElementById('calculator-tab');
+            const foodsTab = document.getElementById('foods-tab');
+            const calcBtn = document.getElementById('tab-calc-btn');
+            const foodsBtn = document.getElementById('tab-foods-btn');
+
+            if (tab === 'calculator') {
+                calcTab.classList.remove('hidden');
+                foodsTab.classList.add('hidden');
+                calcBtn.className = "flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 bg-white text-brand-700 shadow-sm font-bold";
+                foodsBtn.className = "flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 text-gray-600 hover:text-gray-900 font-bold";
+            } else {
+                calcTab.classList.add('hidden');
+                foodsTab.classList.remove('hidden');
+                foodsBtn.className = "flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 bg-white text-brand-700 shadow-sm font-bold";
+                calcBtn.className = "flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 text-gray-600 hover:text-gray-900 font-bold";
+            }
+        }
+
+        // Calculate Dose Core Function
+        function calculateDose(scroll = false) {
+            const icr = parseFloat(icrInput.value) || 0;
+            const isf = parseFloat(isfInput.value) || 0;
+            const targetSugar = parseFloat(targetSugarInput.value) || 0;
+            const currentSugar = parseFloat(currentSugarInput.value) || 0;
+            const manualCarbs = parseFloat(manualCarbsInput.value) || 0;
+
+            // Calculate food carbs from directory
+            const directoryCarbs = selectedFoods.reduce((sum, item) => sum + (item.carbs * item.quantity), 0);
+            const totalCarbs = manualCarbs + directoryCarbs;
+
+            totalCarbsDisplay.innerText = totalCarbs;
+
+            let mealDose = 0;
+            let correctionDose = 0;
+
+            if (icr > 0 && totalCarbs > 0) {
+                mealDose = totalCarbs / icr;
+            }
+
+            if (isf > 0 && currentSugar > targetSugar && targetSugar > 0) {
+                correctionDose = (currentSugar - targetSugar) / isf;
+            }
+
+            const totalDose = mealDose + correctionDose;
+
+            // Update UI with rounded values
+            mealDoseDisplay.innerText = mealDose.toFixed(1);
+            correctionDoseDisplay.innerText = correctionDose.toFixed(1);
+            totalDoseDisplay.innerText = totalDose.toFixed(1);
+
+            if (totalDose > 0) {
+                doseStatusNote.innerText = `جرعة الوجبة (${mealDose.toFixed(1)}) + جرعة التصحيح (${correctionDose.toFixed(1)})`;
+            } else {
+                doseStatusNote.innerText = 'أدخل بياناتك ثم اضغط "احسب الجرعة"';
+            }
+
+            // Save to localStorage if option checked
+            if (rememberCheckbox.checked) {
+                saveSettingsLocally();
+            }
+
+            if (scroll) {
+                totalDoseDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Add/Remove foods to meal
+        function addFoodToMeal(id) {
+            const food = foodDatabase.find(f => f.id === id);
+            if (!food) return;
+
+            const existingIndex = selectedFoods.findIndex(f => f.id === id);
+            if (existingIndex > -1) {
+                selectedFoods[existingIndex].quantity += 1;
+            } else {
+                selectedFoods.push({ ...food, quantity: 1 });
+            }
+
+            updateSelectedFoodsUI();
+            calculateDose();
+            showToast(`تمت إضافة ${food.name} للوجبة`);
+        }
+
+        function updateQuantity(id, delta) {
+            const index = selectedFoods.findIndex(f => f.id === id);
+            if (index > -1) {
+                selectedFoods[index].quantity += delta;
+                if (selectedFoods[index].quantity <= 0) {
+                    selectedFoods.splice(index, 1);
+                }
+            }
+            updateSelectedFoodsUI();
+            calculateDose();
+        }
+
+        function clearSelectedFoods() {
+            selectedFoods = [];
+            updateSelectedFoodsUI();
+            calculateDose();
+            showToast("تم مسح عناصر الوجبة المحددة");
+        }
+
+        function updateSelectedFoodsUI() {
+            const box = document.getElementById('selected-foods-box');
+            const list = document.getElementById('selected-foods-list');
+
+            if (selectedFoods.length === 0) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            box.classList.remove('hidden');
+            list.innerHTML = selectedFoods.map(item => `
+                <li class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-teal-100 text-xs">
+                    <span class="font-medium text-gray-800">${item.name} (${item.carbs * item.quantity} جم)</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="w-5 h-5 bg-gray-100 rounded text-gray-600 font-bold flex items-center justify-center hover:bg-gray-200">-</button>
+                        <span class="font-bold text-brand-700">${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="w-5 h-5 bg-brand-100 rounded text-brand-700 font-bold flex items-center justify-center hover:bg-brand-200">+</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        // Render food directory
+        function renderFoodList() {
+            const container = document.getElementById('food-list-container');
+            const query = document.getElementById('food-search-input').value.trim().toLowerCase();
+
+            const filtered = foodDatabase.filter(item => {
+                const matchesQuery = item.name.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query);
+                const matchesCat = (activeCategory === 'all') || 
+                                   (activeCategory === 'popular' && item.popular) || 
+                                   (item.category === activeCategory);
+                return matchesQuery && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">لم يتم العثور على أطعمة مطابقة</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 hover:bg-teal-50/50 rounded-xl border border-gray-100 transition">
+                    <div class="space-y-0.5">
+                        <div class="font-bold text-gray-800 text-xs sm:text-sm">${item.name}</div>
+                        <div class="text-[11px] text-gray-500">${item.desc} — <span class="font-bold text-brand-600">${item.carbs} جم كارب</span></div>
+                    </div>
+                    <button onclick="addFoodToMeal(${item.id})" class="bg-brand-50 hover:bg-brand-500 hover:text-white text-brand-700 text-xs font-bold px-3 py-2 rounded-lg border border-brand-200/60 transition flex items-center gap-1">
+                        <span>+ أضف</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function filterFoods() {
+            renderFoodList();
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            const buttons = document.querySelectorAll('.cat-pill');
+            buttons.forEach(btn => {
+                btn.className = "cat-pill px-3 py-1.5 rounded-lg font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap";
+            });
+            event.target.className = "cat-pill active px-3 py-1.5 rounded-lg font-bold bg-brand-500 text-white whitespace-nowrap";
+            renderFoodList();
+        }
+
+        // Local Storage Settings Handler
+        function saveSettingsLocally() {
+            const settings = {
+                icr: icrInput.value,
+                isf: isfInput.value,
+                targetSugar: targetSugarInput.value,
+                remember: rememberCheckbox.checked
+            };
+            localStorage.setItem('carb_calc_settings', JSON.stringify(settings));
+        }
+
+        function loadSavedSettings() {
+            try {
+                const saved = localStorage.getItem('carb_calc_settings');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.remember) {
+                        icrInput.value = parsed.icr || '';
+                        isfInput.value = parsed.isf || '';
+                        targetSugarInput.value = parsed.targetSugar || '';
+                        rememberCheckbox.checked = true;
+                    }
+                }
+            } catch (e) {
+                console.error("Error reading saved settings", e);
+            }
+        }
+
+        function toggleRememberSettings() {
+            if (rememberCheckbox.checked) {
+                saveSettingsLocally();
+                showToast("تم تفعيل حفظ الإعدادات على هذا الجهاز");
+            } else {
+                localStorage.removeItem('carb_calc_settings');
+                showToast("تم إلغاء حفظ الإعدادات");
+            }
+        }
+
+        function resetApp() {
+            currentSugarInput.value = '';
+            manualCarbsInput.value = '0';
+            clearSelectedFoods();
+            calculateDose();
+            showToast("تمت إعادة الضبط بنجاح");
+        }
+
+        function toggleInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
