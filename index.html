@@ -370,7 +370,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 380px;
+      max-height: 400px;
       overflow-y: auto;
     }
 
@@ -451,7 +451,7 @@
   <header>
     <h1>حاسبة الكارب</h1>
     <p>احسب جرعة الأنسولين السريع من كمية الكربوهيدرات والسكر الحالي، بالاعتماد على نسبتك ومعاملك الخاصين.</p>
-    <div class="supervisor-badge">👸 بإشراف أخصائية التغذية العلاجية: منى الرشيدي</div>
+    <div class="supervisor-badge"> بإشراف أخصائية التغذية العلاجية: منى الرشيدي</div>
   </header>
 
   <!-- Navigation Tabs -->
@@ -568,15 +568,15 @@
 
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن طعام، عنصر أو مطعم..." oninput="filterFood()">
+        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن طعام، فاكهة، خضار أو مطعم..." oninput="filterFood()">
       </div>
 
       <!-- Categories Filter -->
       <div class="categories-flex">
         <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
-        <button class="cat-btn" onclick="filterCategory('grains', this)">🌾 الحبوب والنشويات</button>
         <button class="cat-btn" onclick="filterCategory('fruits', this)">🍎 الفواكه</button>
         <button class="cat-btn" onclick="filterCategory('veggies', this)">🥦 الخضار</button>
+        <button class="cat-btn" onclick="filterCategory('grains', this)">🌾 الحبوب والنشويات</button>
         <button class="cat-btn" onclick="filterCategory('dairy', this)">🥛 الألبان</button>
         <button class="cat-btn" onclick="filterCategory('traditional', this)">🇸🇦 الأطباق الشعبية</button>
         <button class="cat-btn" onclick="filterCategory('restaurants', this)">🍔 المطاعم</button>
@@ -591,9 +591,9 @@
 </div>
 
 <script>
-  // قائمة المراجع والأطعمة المحدثة والموسعة
+  // قاعدة بيانات كاملة وشاملة للفواكه والغضار وباقي المجموعات
   const foodDatabase = [
-    // الفواكه
+    // --- الفواكه ---
     { id: 1, name: "تمر (3 حبات متوسطة)", carbs: 15, details: "حوالي 30 جرام", category: "fruits" },
     { id: 2, name: "موزة متوسطة الحجم", carbs: 27, details: "حبة واحدة متوسطة (~118 جم)", category: "fruits" },
     { id: 3, name: "تفاحة متوسطة", carbs: 25, details: "حبة واحدة متوسطة", category: "fruits" },
@@ -601,37 +601,58 @@
     { id: 5, name: "عصير برتقال طازج (كوب)", carbs: 30, details: "كوب زجاجي (240 مل)", category: "fruits" },
     { id: 6, name: "بطيخ (كوب مكعبات)", carbs: 12, details: "حوالي 150 جرام", category: "fruits" },
     { id: 7, name: "عنب (15 حبة)", carbs: 15, details: "حصة واحدة", category: "fruits" },
+    { id: 8, name: "فراولة (كوب كامل)", carbs: 12, details: "حوالي 150 جرام", category: "fruits" },
+    { id: 9, name: "مانجو (نصف حبة / نصف كوب)", carbs: 15, details: "مكعبات طازجة", category: "fruits" },
+    { id: 10, name: "خوخ / دراق (حبة متوسطة)", carbs: 15, details: "حبة واحدة", category: "fruits" },
+    { id: 11, name: "كمثرى / إجاص (حبة متوسطة)", carbs: 25, details: "حبة واحدة", category: "fruits" },
+    { id: 12, name: "رمان (نصف كوب حبوب)", carbs: 16, details: "حبوب طازجة", category: "fruits" },
+    { id: 13, name: "كيوي (حبتين صغار)", carbs: 15, details: "حبتين متوسطتين", category: "fruits" },
+    { id: 14, name: "تين طازج (حبتين متوسطتين)", carbs: 19, details: "حبتين", category: "fruits" },
+    { id: 15, name: "شمام (كوب مكعبات)", carbs: 13, details: "مكعبات طازجة", category: "fruits" },
+    { id: 16, name: "توت أسود/أحمر (كوب)", carbs: 14, details: "طازج", category: "fruits" },
+    { id: 17, name: "أناناس (كوب مكعبات)", carbs: 20, details: "مكعبات طازجة", category: "fruits" },
 
-    // الحبوب والنشويات
-    { id: 8, name: "أرز أبيض مطبوخ (كوب)", carbs: 45, details: "حوالي 158 جرام", category: "grains" },
-    { id: 9, name: "خبز مفرود عربي (رغيف)", carbs: 30, details: "رغيف واحد متوسط", category: "grains" },
-    { id: 10, name: "خبز صامولي / صمّون", carbs: 25, details: "حبة واحدة (حجم عادي)", category: "grains" },
-    { id: 11, name: "خبز توست أبيض/أسمر", carbs: 15, details: "شريحة واحدة", category: "grains" },
-    { id: 12, name: "معكرونة مطبوخة (كوب)", carbs: 40, details: "حوالي 140 جرام", category: "grains" },
-    { id: 13, name: "بطاطس مسلوقة/مشوية (متوسطة)", carbs: 30, details: "حبة واحدة متوسطة", category: "grains" },
+    // --- الخضار ---
+    { id: 18, name: "ذرة حلوة (كوب)", carbs: 30, details: "مطبوخة أو حبوب", category: "veggies" },
+    { id: 19, name: "بازلاء مطبوخة (كوب)", carbs: 20, details: "كوب واحد مطبوخ", category: "veggies" },
+    { id: 20, name: "بطاطا حلوة (متوسطة)", carbs: 24, details: "مشوية أو مسلوقة", category: "veggies" },
+    { id: 21, name: "سلطة خضراء مشكلة (صحن)", carbs: 5, details: "خس، خيار، طماطم، جرجير", category: "veggies" },
+    { id: 22, name: "خيار (حبة متوسطة)", carbs: 2, details: "منخفض الكارب جداً", category: "veggies" },
+    { id: 23, name: "طماطم (حبة متوسطة)", carbs: 5, details: "حبة طازجة", category: "veggies" },
+    { id: 24, name: "جزر (حبة متوسطة)", carbs: 6, details: "طازج أو مسلوق", category: "veggies" },
+    { id: 25, name: "بروكلي مطبوخ (كوب)", carbs: 6, details: "مسلوق أو على البخار", category: "veggies" },
+    { id: 26, name: "كوسة مطبوخة (كوب)", carbs: 8, details: "شرائح أو مكعبات", category: "veggies" },
+    { id: 27, name: "باذنجان مطبوخ (كوب)", carbs: 9, details: "مشوي أو مطبوخ", category: "veggies" },
+    { id: 28, name: "بامية مطبوخة (كوب)", carbs: 7, details: "مرق أو مسلوقة", category: "veggies" },
+    { id: 29, name: "فلفل رومي ألوان (حبة)", carbs: 7, details: "حبة متوسطة", category: "veggies" },
+    { id: 30, name: "سبانخ مطبوخة (كوب)", carbs: 7, details: "مطبوخة", category: "veggies" },
 
-    // الخضار
-    { id: 14, name: "ذرة حلوة (كوب)", carbs: 30, details: "مطبوخة", category: "veggies" },
-    { id: 15, name: "بازلاء مطبوخة (كوب)", carbs: 20, details: "كوب واحد", category: "veggies" },
-    { id: 16, name: "سلطة خضراء مشكلة", carbs: 5, details: "صحن متوسط", category: "veggies" },
+    // --- الحبوب والنشويات ---
+    { id: 31, name: "أرز أبيض مطبوخ (كوب)", carbs: 45, details: "حوالي 158 جرام", category: "grains" },
+    { id: 32, name: "خبز مفرود عربي (رغيف)", carbs: 30, details: "رغيف واحد متوسط", category: "grains" },
+    { id: 33, name: "خبز صامولي / صمّون", carbs: 25, details: "حبة واحدة (حجم عادي)", category: "grains" },
+    { id: 34, name: "خبز توست أبيض/أسمر", carbs: 15, details: "شريحة واحدة", category: "grains" },
+    { id: 35, name: "معكرونة مطبوخة (كوب)", carbs: 40, details: "حوالي 140 جرام", category: "grains" },
+    { id: 36, name: "بطاطس مسلوقة/مشوية (متوسطة)", carbs: 30, details: "حبة واحدة متوسطة", category: "grains" },
 
-    // الألبان
-    { id: 17, name: "حليب بقر طازج (كوب)", carbs: 12, details: "240 مل", category: "dairy" },
-    { id: 18, name: "لبن / زبادي عادي (كوب)", carbs: 12, details: "200 جرام", category: "dairy" },
-    { id: 19, name: "زبادي بالمحليات أو الفواكه", carbs: 20, details: "عبوة واحدة", category: "dairy" },
+    // --- الألبان ---
+    { id: 37, name: "حليب بقر طازج (كوب)", carbs: 12, details: "240 مل", category: "dairy" },
+    { id: 38, name: "لبن / زبادي عادي (كوب)", carbs: 12, details: "200 جرام", category: "dairy" },
+    { id: 39, name: "زبادي بالمحليات أو الفواكه", carbs: 20, details: "عبوة واحدة", category: "dairy" },
 
-    // الأطباق الشعبية والرئيسية
-    { id: 20, name: "كبسة أرز بالدجاج (صحن فردي)", carbs: 75, details: "حوالي 1.5 - 2 كوب أرز", category: "traditional" },
-    { id: 21, name: "جريش / سليق (كوب)", carbs: 35, details: "كوب مطبوخ", category: "traditional" },
-    { id: 22, name: "سمبوسة بالفرن/مقلية", carbs: 10, details: "حبة واحدة متوسطة", category: "traditional" },
-    { id: 23, name: "مطفح / مطازيز (كوب)", carbs: 30, details: "مطبوخ مع الخضار", category: "traditional" },
+    // --- الأطباق الشعبية والرئيسية ---
+    { id: 40, name: "عصيدة (كوب)", carbs: 30, details: "طبق عصيدة تقليدي", category: "traditional" },
+    { id: 41, name: "كبسة أرز بالدجاج (صحن فردي)", carbs: 75, details: "حوالي 1.5 - 2 كوب أرز", category: "traditional" },
+    { id: 42, name: "جريش / سليق (كوب)", carbs: 35, details: "كوب مطبوخ", category: "traditional" },
+    { id: 43, name: "سمبوسة بالفرن/مقلية", carbs: 10, details: "حبة واحدة متوسطة", category: "traditional" },
+    { id: 44, name: "مطازيز (كوب)", carbs: 30, details: "مطبوخ مع الخضار", category: "traditional" },
 
-    // المطاعم والوجبات السريعة
-    { id: 24, name: "برجر دجاج/لحم عادي (بدون بطاطس)", carbs: 30, details: "خبز البرجر السادة", category: "restaurants" },
-    { id: 25, name: "بطاطس مقلية (حجم متوسط)", carbs: 45, details: "وجبة متوسطة", category: "restaurants" },
-    { id: 26, name: "بيتزا ببروني/خضار (شريحة متوسطة)", carbs: 30, details: "شريحة واحدة من بيتزا حجم وسط", category: "restaurants" },
-    { id: 27, name: "شاورما دجاج (صاروخ)", carbs: 45, details: "خبز صاج كبير", category: "restaurants" },
-    { id: 28, name: "مشروب غازي عادي (علبة 355 مل)", carbs: 39, details: "علبة واحدة", category: "restaurants" }
+    // --- المطاعم والوجبات السريعة ---
+    { id: 45, name: "برجر دجاج/لحم عادي (بدون بطاطس)", carbs: 30, details: "خبز البرجر السادة", category: "restaurants" },
+    { id: 46, name: "بطاطس مقلية (حجم متوسط)", carbs: 45, details: "وجبة متوسطة", category: "restaurants" },
+    { id: 47, name: "بيتزا ببروني/خضار (شريحة متوسطة)", carbs: 30, details: "شريحة واحدة من بيتزا حجم وسط", category: "restaurants" },
+    { id: 48, name: "شاورما دجاج (صاروخ)", carbs: 45, details: "خبز صاج كبير", category: "restaurants" },
+    { id: 49, name: "مشروب غازي عادي (علبة 355 مل)", carbs: 39, details: "علبة واحدة", category: "restaurants" }
   ];
 
   let selectedItems = [];
